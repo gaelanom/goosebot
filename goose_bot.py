@@ -22,7 +22,6 @@ from datetime import datetime, time, timedelta
 import asyncio
 
 # Miscellaneous imports
-from math import floor
 
 # Load the bot token; The token is not to be made publicly available, so it is stored offline.
 load_dotenv('environment.env')
@@ -40,6 +39,10 @@ DAILY_MESSAGE_CHANNEL_ID = int(os.getenv('DAILY_MESSAGE_CHANNEL_ID'))
 HOURLY_MESSAGE_CHANNEL_ID = DAILY_MESSAGE_CHANNEL_ID
 DAILY_MESSAGE = "Goose bot lives another day!"
 HOURLY_MESSAGE = "Goose bot checking in."
+
+# Set up variables
+send_hourly_message = True
+send_daily_message = True
 
 # Set up required intents
 intents = discord.Intents.default()
@@ -137,6 +140,28 @@ async def role(ctx, role_name: discord.Role = "", user_name: discord.Member = "a
                     await ctx.send("Granted `" + role_name.name + "` to " + user_name.display_name + ".")
         except (Exception,):
             await ctx.send("Something went wrong assigning roles, sorry!")
+
+
+# Toggles hourly messages on or off.
+@goose_bot.command()
+@commands.has_role('admin')
+async def hourly(ctx):
+    global send_hourly_message
+    send_hourly_message = not send_hourly_message
+    status = await goose_bot_utils.pretty_function_bools(send_hourly_message)
+    await ctx.send("Hourly messages now " + status + ".")
+    logging.info("Hourly Message: Hourly messages " + status + ".")
+
+
+# Toggles daily messages on or off.
+@goose_bot.command()
+@commands.has_role('admin')
+async def daily(ctx):
+    global send_daily_message
+    send_daily_message = not send_daily_message
+    status = await goose_bot_utils.pretty_function_bools(send_daily_message)
+    await ctx.send("Daily messages now " + status + ".")
+    logging.info("Daily Message: Daily messages " + status + ".")
 
 
 # Add a role associated with an appropriate reaction on an appropriate message.
@@ -262,7 +287,7 @@ async def daily_message(channel_id, message_str):
 
 # Send a message on the hour, every hour.
 async def hourly_message(channel_id, message_str):
-    while True:
+    while send_hourly_message:
         now = datetime.utcnow()
         logging.info("Hourly Message: It is now " + str(now) + ".")
         next_hour = now.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
@@ -270,7 +295,8 @@ async def hourly_message(channel_id, message_str):
         seconds_until_next_hour = (next_hour - now).total_seconds()
         time_str = await goose_bot_utils.make_time_str(seconds_until_next_hour)
         logging.info("Hourly Message: There are " + time_str + " between now and then.")
-        logging.info("Hourly Message: Waiting for " + time_str + " (" + str(seconds_until_next_hour) + " seconds" + ")...")
+        logging.info("Hourly Message: Waiting for " + time_str +
+                     " (" + str(seconds_until_next_hour) + " seconds" + ")...")
         await asyncio.sleep(seconds_until_next_hour)
         logging.info("Hourly Message: Sending hourly message!")
         await send_message_in_channel(channel_id, message_str)

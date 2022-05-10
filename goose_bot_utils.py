@@ -35,3 +35,10 @@ async def make_time_str(seconds):
     minutes = minutes - hours * 60
     sec = (seconds - minutes * 60) - hours * 3600
     return str(floor(hours)) + " hours, " + str(floor(minutes)) + " minutes, and " + str(floor(sec)) + " seconds"
+
+
+async def pretty_function_bools(var: bool):
+    if var:
+        return "enabled"
+    else:
+        return "disabled"
