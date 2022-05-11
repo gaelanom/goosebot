@@ -273,9 +273,10 @@ async def daily_message(channel_id, message_str):
         time_str = await goose_bot_utils.make_time_str(seconds_until_target)
         logging.info("Daily Message: There are " + time_str + " between now and then.")
         logging.info("Daily Message: Waiting for " + time_str + " (" + str(seconds_until_target) + ") seconds...")
-        await asyncio.sleep(seconds_until_target)
-        logging.info("Daily Message: Sending daily message!")
-        await send_message_in_channel(channel_id, message_str)
+        if send_daily_message:
+            await asyncio.sleep(seconds_until_target)
+            logging.info("Daily Message: Sending daily message!")
+            await send_message_in_channel(channel_id, message_str)
         logging.info("Daily Message: Daily message sent.")
         tomorrow = datetime.combine(now.date() + timedelta(days=1), time(0))
         seconds = (tomorrow - now).total_seconds()
@@ -287,7 +288,7 @@ async def daily_message(channel_id, message_str):
 
 # Send a message on the hour, every hour.
 async def hourly_message(channel_id, message_str):
-    while send_hourly_message:
+    while True:
         now = datetime.utcnow()
         logging.info("Hourly Message: It is now " + str(now) + ".")
         next_hour = now.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
@@ -298,9 +299,10 @@ async def hourly_message(channel_id, message_str):
         logging.info("Hourly Message: Waiting for " + time_str +
                      " (" + str(seconds_until_next_hour) + " seconds" + ")...")
         await asyncio.sleep(seconds_until_next_hour)
-        logging.info("Hourly Message: Sending hourly message!")
-        await send_message_in_channel(channel_id, message_str)
-        logging.info("Hourly Message: Hourly message sent.")
+        if send_hourly_message:
+            logging.info("Hourly Message: Sending hourly message!")
+            await send_message_in_channel(channel_id, message_str)
+            logging.info("Hourly Message: Hourly message sent.")
         in_an_hour = datetime.utcnow().replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
         logging.info("Hourly Message: An hour from now is " + str(in_an_hour) + ".")
         seconds = (in_an_hour - now).total_seconds()
