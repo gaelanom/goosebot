@@ -45,7 +45,7 @@ send_hourly_message = True
 send_daily_message = True
 
 # Set up required intents
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 intents.typing = False
 intents.presences = False
 intents.members = True
