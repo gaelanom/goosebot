@@ -57,7 +57,7 @@ LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(filename=LOG_FILE_NAME, format=LOG_FORMAT, level=logging.INFO)
 
 # Initialize the client
-client = discord.Client()
+client = discord.Client(intents=intents)
 
 # Initialize the bot
 goose_bot = commands.Bot(command_prefix=GOOSE_BOT_COMMAND_PREFIX, description=GOOSE_BOT_DESCRIPTION, intents=intents)
