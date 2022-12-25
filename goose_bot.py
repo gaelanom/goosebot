@@ -59,8 +59,16 @@ logging.basicConfig(filename=LOG_FILE_NAME, format=LOG_FORMAT, level=logging.INF
 # Initialize the client
 client = discord.Client(intents=intents)
 
+
+class GooseBot(commands.Bot):
+    async def setup_hook(self):
+        self.loop.create_task(daily_message(DAILY_MESSAGE_CHANNEL_ID, DAILY_MESSAGE))
+        self.loop.create_task(hourly_message(HOURLY_MESSAGE_CHANNEL_ID, HOURLY_MESSAGE))
+
+
 # Initialize the bot
-goose_bot = commands.Bot(command_prefix=GOOSE_BOT_COMMAND_PREFIX, description=GOOSE_BOT_DESCRIPTION, intents=intents)
+goose_bot = GooseBot(command_prefix=GOOSE_BOT_COMMAND_PREFIX, description=GOOSE_BOT_DESCRIPTION, intents=intents)
+
 
 # Set the reaction messages and the emoji->role dict.
 # The dict is kept in a private file because of irrelevant personal information, and a default dict is provided below.
@@ -313,12 +321,20 @@ async def hourly_message(channel_id, message_str):
 
 
 # Prepare to maintain daily and hourly message schedules.
-def set_up_scheduled_messages():
+async def set_up_scheduled_messages():
     goose_bot.loop.create_task(daily_message(DAILY_MESSAGE_CHANNEL_ID, DAILY_MESSAGE))
     goose_bot.loop.create_task(hourly_message(HOURLY_MESSAGE_CHANNEL_ID, HOURLY_MESSAGE))
-
-
-set_up_scheduled_messages()
+#
+#
+# set_up_scheduled_messages()
 
 # Run the bot!
 goose_bot.run(BOT_TOKEN)
+
+
+# async def main():
+#     async with goose_bot:
+#
+#         await goose_bot.start(BOT_TOKEN)
+
+# asyncio.run(main())
